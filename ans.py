@@ -1,48 +1,51 @@
 import random
 
+
 def prim():
-    # ---- เตรียมข้อมูล ----
+    # if not graph_data:
+    #     print("No graph data!")
+    #     return
+
+    prim_data = []
     total_weight = 0
-    mst = []  # เก็บเส้นทางที่เลือก
-    nodes = set()  # เก็บ node ทั้งหมด
 
-    # รวม node ทั้งหมดจากกราฟ
-    for e in graph_data:
-        nodes.add(e['start'])
-        nodes.add(e['finish'])
+    # สุ่มเลือก node เริ่มต้น
+    root = random.choice([edge['start'] for edge in graph_data])
+    print("\nRandom start node:", root)
 
-    # เลือก node เริ่มต้นแบบสุ่ม
-    root = random.choice(list(nodes))
+    # เก็บ node ที่เยือนแล้ว
     visited = {root}
-    print("เริ่มจาก:", root)
 
-    # ---- เริ่มสร้างต้นไม้ MST ----
-    while visited != nodes:
-        candidate_edges = []
+    # รวม node ทั้งหมดในกราฟ
+    all_nodes = set([e['start'] for e in graph_data] + [e['finish'] for e in graph_data])
 
-        # หาขอบที่เชื่อมจาก node ที่เยือนแล้ว ไปยัง node ที่ยังไม่เยือน
-        for e in graph_data:
-            if (e['start'] in visited and e['finish'] not in visited) or \
-               (e['finish'] in visited and e['start'] not in visited):
-                candidate_edges.append(e)
+    while visited != all_nodes:
+        # หาขอบที่เชื่อมจาก node ที่เยือนแล้ว ไปยัง node ที่ยังไม่ได้เยือน
+        candidate_edges = [
+            e for e in graph_data
+            if (e['start'] in visited and e['finish'] not in visited)
+               or (e['finish'] in visited and e['start'] not in visited)
+        ]
 
-        # ถ้าไม่มีเส้นที่ต่อได้ -> จบ (กราฟไม่เชื่อมถึงกัน)
         if not candidate_edges:
             break
 
-        # เลือกเส้นที่น้ำหนักน้อยที่สุด
-        min_edge = min(candidate_edges, key=lambda x: x['distance'])
+        # เลือกเส้นที่มีน้ำหนักน้อยที่สุด
+        min_edge = min(candidate_edges, key=lambda e: e['distance'])
 
-        # เพิ่มลงใน MST
-        mst.append(min_edge)
+        prim_data.append(min_edge)
         total_weight += min_edge['distance']
 
-        # เพิ่ม node ใหม่เข้า visited
+        # เพิ่ม node ใหม่เข้าสู่ชุดที่เยือนแล้ว
         visited.add(min_edge['start'])
         visited.add(min_edge['finish'])
-    for e in mst:
-        print(f"{e['start']} - {e['finish']} : {e['distance']}")
+
+    print("\nPrim's Minimum Spanning Tree:")
+    for edge in prim_data:
+        print(f"{edge['start']} - {edge['finish']} : {edge['distance']}")
+
     print("Total Weight =", total_weight)
+
 
 def kru():
     # เรียง edge จากน้อยไปมากตามน้ำหนัก
